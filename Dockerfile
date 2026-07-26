@@ -11,21 +11,20 @@ RUN install-php-extensions \
 
 WORKDIR /app
 
+# Autoriser Composer à exécuter les plugins (ex: symfony/runtime) même en tant que root
+ENV COMPOSER_ALLOW_SUPERUSER=1
+
 # Copier composer depuis l'image officielle
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copier les fichiers de dépendances d'abord (meilleur cache Docker)
-COPY composer.json composer.lock ./
-
-# Installer les dépendances PHP (sans les paquets de dev, prod uniquement)
-RUN composer install --no-dev --no-scripts --no-progress --optimize-autoloader --prefer-dist
-
-# Copier le reste du projet
+# Copier tout le projet d'abord (évite les soucis d'ordre avec symfony/runtime)
 COPY . .
 
-# Finaliser l'installation composer (scripts, autoload optimisé)
-RUN composer dump-autoload --optimize --no-dev \
-    && composer run-script --no-dev post-install-cmd || true
+# Installer les dépendances PHP (sans les paquets de dev, prod uniquement, sans scripts qui ont besoin de DB)
+RUN composer install --no-dev --no-scripts --no-progress --optimize-autoloader --prefer-dist
+
+# Vérification (visible dans les logs de build) que le composant runtime est bien présent
+RUN test -f vendor/autoload_runtime.php && echo "OK: autoload_runtime.php present" || echo "MISSING: autoload_runtime.php"
 
 # Variables d'environnement
 ENV APP_ENV=prod

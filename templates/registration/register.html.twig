@@ -1,0 +1,64 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription — GestDépenses{% endblock %}
+
+{% block body %}
+<div class="min-vh-100 d-flex align-items-center justify-content-center" style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4f46e5 100%)">
+    <div class="w-100" style="max-width:460px;padding:1rem">
+        <div class="text-center mb-4">
+            <div class="mb-3">
+                <span class="rounded-3 p-3 d-inline-block" style="background:rgba(255,255,255,.1)">
+                    <i class="bi bi-wallet2 text-white" style="font-size:2rem"></i>
+                </span>
+            </div>
+            <h2 class="text-white fw-bold mb-1">GestDépenses</h2>
+            <p class="text-white-50">Créer votre compte gratuit</p>
+        </div>
+
+        <div class="card shadow-lg">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4">Inscription</h5>
+
+                {{ form_start(form) }}
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        {{ form_label(form.prenom, 'Prénom', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                        {{ form_widget(form.prenom) }}
+                        {{ form_errors(form.prenom) }}
+                    </div>
+                    <div class="col-6">
+                        {{ form_label(form.nom, 'Nom', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                        {{ form_widget(form.nom) }}
+                        {{ form_errors(form.nom) }}
+                    </div>
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.email, 'Adresse e-mail', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                    {{ form_widget(form.email) }}
+                    {{ form_errors(form.email) }}
+                </div>
+                <div class="mb-3">
+                    {{ form_label(form.plainPassword.first, 'Mot de passe', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                    {{ form_widget(form.plainPassword.first) }}
+                    {{ form_errors(form.plainPassword.first) }}
+                </div>
+                <div class="mb-4">
+                    {{ form_label(form.plainPassword.second, 'Confirmer le mot de passe', {'label_attr': {'class': 'form-label fw-medium'}}) }}
+                    {{ form_widget(form.plainPassword.second) }}
+                    {{ form_errors(form.plainPassword.second) }}
+                    {{ form_errors(form.plainPassword) }}
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold">
+                    <i class="bi bi-person-plus me-2"></i>Créer mon compte
+                </button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+
+        <p class="text-center text-white-50 mt-3">
+            Déjà un compte ?
+            <a href="{{ path('app_login') }}" class="text-white fw-semibold">Se connecter</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord — GestDépenses{% endblock %}
+
+{% block body %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Tableau de bord</h1>
+        <p class="text-muted mb-0">Bonjour, {{ app.user.prenom }} 👋 — {{ 'now'|date('d F Y') }}</p>
+    </div>
+    <a href="{{ path('app_depense_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nouvelle dépense
+    </a>
+</div>
+
+{# Cartes de statistiques #}
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">Ce mois-ci</p>
+                        <h3 class="fw-bold text-dark mb-0">{{ total_mois_courant|number_format(2, ',', ' ') }} DT</h3>
+                    </div>
+                    <div class="rounded-3 p-2" style="background:#ede9fe">
+                        <i class="bi bi-calendar-month fs-4" style="color:#7c3aed"></i>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    {% if evolution > 0 %}
+                        <span class="badge bg-danger-subtle text-danger"><i class="bi bi-arrow-up"></i> {{ evolution|number_format(1) }}%</span>
+                    {% elseif evolution < 0 %}
+                        <span class="badge bg-success-subtle text-success"><i class="bi bi-arrow-down"></i> {{ (evolution * -1)|number_format(1) }}%</span>
+                    {% else %}
+                        <span class="badge bg-secondary-subtle text-secondary">— Stable</span>
+                    {% endif %}
+                    <small class="text-muted ms-1">vs mois dernier</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">Mois précédent</p>
+                        <h3 class="fw-bold text-dark mb-0">{{ total_mois_precedent|number_format(2, ',', ' ') }} DT</h3>
+                    </div>
+                    <div class="rounded-3 p-2" style="background:#fef3c7">
+                        <i class="bi bi-clock-history fs-4" style="color:#d97706"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0 mt-2">Dépenses du mois dernier</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">Catégories</p>
+                        <h3 class="fw-bold text-dark mb-0">{{ par_categorie|length }}</h3>
+                    </div>
+                    <div class="rounded-3 p-2" style="background:#dcfce7">
+                        <i class="bi bi-tags fs-4" style="color:#16a34a"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0 mt-2">Catégories utilisées ce mois</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-sm-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">Dépenses récentes</p>
+                        <h3 class="fw-bold text-dark mb-0">{{ depenses_recentes|length }}</h3>
+                    </div>
+                    <div class="rounded-3 p-2" style="background:#fee2e2">
+                        <i class="bi bi-receipt fs-4" style="color:#dc2626"></i>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0 mt-2">Dernières transactions</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    {# Graphique mensuel #}
+    <div class="col-xl-8">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center py-3">
+                <span><i class="bi bi-bar-chart me-2 text-primary"></i>Évolution mensuelle {{ annee }}</span>
+            </div>
+            <div class="card-body">
+                <canvas id="chartMensuel" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {# Répartition par catégorie #}
+    <div class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-header py-3">
+                <i class="bi bi-pie-chart me-2 text-primary"></i>Ce mois par catégorie
+            </div>
+            <div class="card-body">
+                {% if par_categorie is empty %}
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                        Aucune dépense ce mois
+                    </div>
+                {% else %}
+                    <canvas id="chartCategorie" height="200"></canvas>
+                    <div class="mt-3">
+                        {% for item in par_categorie %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="rounded-circle d-inline-block" style="width:10px;height:10px;background:{{ item.couleur }}"></span>
+                                    <small>{{ item.nom }}</small>
+                                </div>
+                                <small class="fw-semibold">{{ item.total|number_format(2, ',', ' ') }} DT</small>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Dépenses récentes #}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center py-3">
+        <span><i class="bi bi-clock me-2 text-primary"></i>Dépenses récentes</span>
+        <a href="{{ path('app_depense_index') }}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+    </div>
+    <div class="card-body p-0">
+        {% if depenses_recentes is empty %}
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                <p>Aucune dépense enregistrée.</p>
+                <a href="{{ path('app_depense_new') }}" class="btn btn-primary btn-sm">Ajouter votre première dépense</a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Libellé</th>
+                            <th>Catégorie</th>
+                            <th>Date</th>
+                            <th class="text-end">Montant</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for depense in depenses_recentes %}
+                            <tr>
+                                <td>
+                                    <strong>{{ depense.libelle }}</strong>
+                                    {% if depense.description %}
+                                        <br><small class="text-muted">{{ depense.description|length > 50 ? depense.description|slice(0,50) ~ '…' : depense.description }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-categorie" style="background:{{ depense.categorie.couleur }}20;color:{{ depense.categorie.couleur }};border:1px solid {{ depense.categorie.couleur }}40;">
+                                        <i class="bi {{ depense.categorie.icone }} me-1"></i>{{ depense.categorie.nom }}
+                                    </span>
+                                </td>
+                                <td class="text-muted">{{ depense.date|date('d/m/Y') }}</td>
+                                <td class="text-end fw-bold">{{ depense.montant|number_format(2, ',', ' ') }} Dt</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+const moisLabels = {{ mois_noms|json_encode|raw }};
+const moisData = {{ donnees_graphique|json_encode|raw }};
+const categorieLabels = {{ par_categorie|map(c => c.nom)|json_encode|raw }};
+const categorieData = {{ par_categorie|map(c => c.total)|json_encode|raw }};
+const categorieCouleurs = {{ par_categorie|map(c => c.couleur)|json_encode|raw }};
+
+new Chart(document.getElementById('chartMensuel'), {
+    type: 'bar',
+    data: {
+        labels: moisLabels,
+        datasets: [{
+            label: 'Dépenses (DT)',
+            data: moisData,
+            backgroundColor: 'rgba(79,70,229,.8)',
+            borderRadius: 6,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => v + 'DT' } } }
+    }
+});
+
+{% if par_categorie is not empty %}
+new Chart(document.getElementById('chartCategorie'), {
+    type: 'doughnut',
+    data: {
+        labels: categorieLabels,
+        datasets: [{
+            data: categorieData,
+            backgroundColor: categorieCouleurs,
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ctx.label + ': ' + parseFloat(ctx.raw).toFixed(2) + ' DT' } }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

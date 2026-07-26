@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes dépenses — GestDépenses{% endblock %}
+
+{% block body %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Mes dépenses</h1>
+        <p class="text-muted mb-0">{{ depenses|length }} dépense(s) — Total : <strong>{{ total|number_format(2, ',', ' ') }} DT</strong></p>
+    </div>
+    <a href="{{ path('app_depense_new') }}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i> Nouvelle dépense
+    </a>
+</div>
+
+{# Filtres #}
+<div class="card mb-4">
+    <div class="card-header py-3">
+        <i class="bi bi-funnel me-2 text-primary"></i>Filtres de recherche
+    </div>
+    <div class="card-body">
+        {{ form_start(form_filtre, {'method': 'GET', 'attr': {'class': 'row g-3 align-items-end'}}) }}
+            <div class="col-md-3">
+                <label class="form-label small text-muted">Recherche</label>
+                {{ form_widget(form_filtre.recherche) }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Catégorie</label>
+                {{ form_widget(form_filtre.categorie) }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Date début</label>
+                {{ form_widget(form_filtre.date_debut) }}
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted">Date fin</label>
+                {{ form_widget(form_filtre.date_fin) }}
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small text-muted">Min DT</label>
+                {{ form_widget(form_filtre.montant_min) }}
+            </div>
+            <div class="col-md-1">
+                <label class="form-label small text-muted">Max DT</label>
+                {{ form_widget(form_filtre.montant_max) }}
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
+            </div>
+            <div class="col-md-auto">
+                <a href="{{ path('app_depense_index') }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg"></i></a>
+            </div>
+        {{ form_end(form_filtre) }}
+    </div>
+</div>
+
+{# Liste #}
+<div class="card">
+    <div class="card-body p-0">
+        {% if depenses is empty %}
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                <p>Aucune dépense trouvée.</p>
+                <a href="{{ path('app_depense_new') }}" class="btn btn-primary btn-sm">Ajouter une dépense</a>
+            </div>
+        {% else %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Libellé</th>
+                            <th>Catégorie</th>
+                            <th>Date</th>
+                            <th class="text-end">Montant</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for depense in depenses %}
+                            <tr>
+                                <td>
+                                    <strong>{{ depense.libelle }}</strong>
+                                    {% if depense.description %}
+                                        <br><small class="text-muted">{{ depense.description|length > 60 ? depense.description|slice(0,60) ~ '…' : depense.description }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge badge-categorie" style="background:{{ depense.categorie.couleur }}20;color:{{ depense.categorie.couleur }};border:1px solid {{ depense.categorie.couleur }}40;">
+                                        <i class="bi {{ depense.categorie.icone }} me-1"></i>{{ depense.categorie.nom }}
+                                    </span>
+                                </td>
+                                <td class="text-muted">{{ depense.date|date('d/m/Y') }}</td>
+                                <td class="text-end fw-bold fs-6">{{ depense.montant|number_format(2, ',', ' ') }} DT</td>
+                                <td class="text-center">
+                                    <a href="{{ path('app_depense_edit', {id: depense.id}) }}" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form action="{{ path('app_depense_delete', {id: depense.id}) }}" method="post" class="d-inline" onsubmit="return confirm('Supprimer cette dépense ?')">
+                                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ depense.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    <tfoot class="table-light">
+                        <tr>
+                            <td colspan="3" class="fw-bold">Total</td>
+                            <td class="text-end fw-bold fs-5 text-primary">{{ total|number_format(2, ',', ' ') }} DT</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

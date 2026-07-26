@@ -162,3 +162,7 @@ Vérifiez les logs dans `var/log/dev.log`.
 
 **Erreur 500 :**
 Activez le mode debug : `APP_ENV=dev` dans `.env`.
+
+Lien du deploiment 
+
+https://gestion-depense-personnelle-production.up.railway.app/

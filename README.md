@@ -1,6 +1,6 @@
 # GestDépenses — Application de gestion de dépenses
 
-Application web de gestion de dépenses personnelles développée avec **Symfony 6.4** et **MySQL**.
+Application web de gestion de dépenses personnelles développée avec **Symfony 6.4** et **PostgreSQL**.
 
 ## Fonctionnalités
 
@@ -18,7 +18,7 @@ Application web de gestion de dépenses personnelles développée avec **Symfony
 
 - PHP 8.1 ou supérieur
 - Composer
-- MySQL 8.0 ou supérieur (ou MariaDB 10.4+)
+- PostgreSQL
 - Serveur web (Apache, Nginx, ou Symfony CLI)
 
 ---
@@ -48,8 +48,7 @@ cp .env.example .env
 Editez le fichier `.env` :
 
 ```
-DATABASE_URL="mysql://VOTRE_UTILISATEUR:VOTRE_MOT_DE_PASSE@127.0.0.1:3306/gestion_depenses?serverVersion=8.0&charset=utf8mb4"
-APP_SECRET=une_chaine_aleatoire_de_32_caracteres
+DATABASE_URL="postgresql://Pseudo:PassWord@127.0.0.1:5432/gestion_depenses?serverVersion=16&charset=utf8"
 ```
 
 ### 4. Créer la base de données et exécuter les migrations
